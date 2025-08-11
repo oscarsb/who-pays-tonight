@@ -30,7 +30,7 @@ export default function Wheel({
 	const [rotation, setRotation] = useState(0)
 	const [spinning, setSpinning] = useState(false)
 	const [amount, setAmount] = useState<number>(0)
-	const [mode, setMode] = useState<OddsMode>("normal")
+	const [mode, setMode] = useState<OddsMode>("aggressive")
 	const wheelRef = useRef<HTMLDivElement>(null)
 	const shieldSnapshotRef = useRef<Set<number> | null>(null) // active shields at spin start
 

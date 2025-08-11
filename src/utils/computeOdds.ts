@@ -12,7 +12,7 @@ export function computeOdds(
   const afterTotals = players.map(name => (totals[name] || 0) + (amount || 0))
 
   const weights = afterTotals.map(v => {
-    const x = v + 1 // avoid division by zero
+    const x = v + 1
     if (mode === "mild") return 1 / Math.sqrt(x)
     if (mode === "aggressive") return 1 / Math.pow(x, 2)
     return 1 / x
