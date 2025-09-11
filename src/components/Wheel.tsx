@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react"
 import { computeOdds, type OddsMode } from "../utils/computeOdds"
+import { formatYenNumber } from "../utils/numbers"
 
 type Props = {
 	items: string[]
@@ -17,6 +18,8 @@ type Props = {
 	hasShields?: boolean[]
 	onBurnShields?: (indices: number[]) => void
 	onOddsUpdate?: (odds: number[]) => void
+	mode: "mild" | "normal" | "aggressive"
+	onModeChange: (m: "mild" | "normal" | "aggressive") => void
 }
 
 export default function Wheel({
@@ -25,12 +28,13 @@ export default function Wheel({
 	activeShields = [],
 	hasShields = [],
 	onBurnShields,
-	onOddsUpdate
+	onOddsUpdate,
+	mode,
+	onModeChange
 }: Props) {
 	const [rotation, setRotation] = useState(0)
 	const [spinning, setSpinning] = useState(false)
 	const [amount, setAmount] = useState<number>(0)
-	const [mode, setMode] = useState<OddsMode>("aggressive")
 	const wheelRef = useRef<HTMLDivElement>(null)
 	const shieldSnapshotRef = useRef<Set<number> | null>(null) // active shields at spin start
 
@@ -197,7 +201,7 @@ export default function Wheel({
 			<div style={{ display: "flex", gap: 8 }}>
 				<select
 					value={mode}
-					onChange={(e) => setMode(e.target.value as OddsMode)}
+					onChange={(e) => onModeChange(e.target.value as OddsMode)}
 					style={{ padding: 4, borderRadius: 8, border: "1px solid #ccc" }}
 				>
 					<option value="mild">Mild (light fairness)</option>
@@ -208,7 +212,7 @@ export default function Wheel({
 			<div style={{ display: "flex", gap: 8 }}>
 				<input
 					type="number"
-					value={amount || ""}
+					value={formatYenNumber(amount) || ""}
 					onChange={(e) => setAmount(Number(e.target.value))}
 					placeholder="Amount"
 					style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", textAlign: "center" }}

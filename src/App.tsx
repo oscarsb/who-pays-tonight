@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react"
 
 import HistorySettings from "./components/HistorySettings";
 import Wheel from "./components/Wheel";
+import type { OddsMode } from "./utils/computeOdds";
+import { formatYenNumber } from "./utils/numbers";
 
 type Player = { name: string; color: string; hasShield: boolean; activeShield: boolean }
 export type HistoryItem = {
@@ -25,12 +27,34 @@ export default function App() {
 		{ name: "Elsa", color: PALETTE[4], hasShield: true, activeShield: false },
 	]
 
+	const [mode, setMode] = useState<OddsMode>(() => {
+		try {
+		  const raw = localStorage.getItem("roulette_mode_v1")
+		  return raw ? (raw as OddsMode) : "aggressive"
+		} catch {
+		  return "aggressive"
+		}
+	  })
+	  
 	const [history, setHistory] = useState<HistoryItem[]>(() => {
 		try {
 			const raw = localStorage.getItem("roulette_history_v1")
 			return raw ? JSON.parse(raw) : []
 		} catch { return [] }
-	})
+	})	
+	  
+	useEffect(() => {
+		try {
+		  localStorage.setItem("roulette_mode_v1", mode)
+		} catch { /* empty */ }
+	  }, [mode])
+
+	useEffect(() => {
+		try {
+		  const savedMode = localStorage.getItem("roulette_mode_v1")
+		  if (savedMode) setMode(savedMode as OddsMode)
+		} catch { /* empty */ }
+	  }, [])
 
 	const [players, setPlayers] = useState<Player[]>(() => {
 		try {
@@ -70,20 +94,20 @@ export default function App() {
 		try {
 			const raw = localStorage.getItem("roulette_history_v1")
 			if (raw) setHistory(JSON.parse(raw))
-		} catch { }
+		} catch { /* empty */ }
 	}, [])
 
 	useEffect(() => {
 		try {
 			localStorage.setItem("roulette_history_v1", JSON.stringify(history))
-		} catch { }
+		} catch { /* empty */ }
 	}, [history])
 
 	useEffect(() => {
 		try {
 			localStorage.setItem("roulette_players_v1", JSON.stringify(players))
 			localStorage.setItem("roulette_shieldsEnabled_v1", JSON.stringify(shieldsEnabled))
-		} catch { }
+		} catch { /* empty */ }
 	}, [players, shieldsEnabled])
 
 	useEffect(() => {
@@ -92,7 +116,7 @@ export default function App() {
 			const se = localStorage.getItem("roulette_shieldsEnabled_v1")
 			if (rp) setPlayers(JSON.parse(rp))
 			if (se) setShieldsEnabled(JSON.parse(se))
-		} catch { }
+		} catch { /* empty */ }
 	}, [])
 
 	function handleResult(name: string, _index: number, amount: number, shieldUsedBy: string[] = []) {
@@ -209,6 +233,8 @@ export default function App() {
 				hasShields={hasShields}
 				onBurnShields={consumeShields}
 				onOddsUpdate={setOdds}
+				mode={mode}
+				onModeChange={setMode}
 			/>
 
 			{/* Totals */}
@@ -235,7 +261,7 @@ export default function App() {
 								<strong>({(odds[i] * 100).toFixed(1)}%)</strong>
 							)}
 						</span>
-						<span><strong>${totals[p.name] || 0}</strong></span>
+						<span><strong>¥{formatYenNumber(totals[p.name]) || 0}</strong></span>
 
 						{/* Shield toggle (only if enabled) */}
 						{shieldsEnabled && (
