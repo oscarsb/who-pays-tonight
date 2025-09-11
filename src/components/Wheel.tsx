@@ -85,7 +85,7 @@ export default function Wheel({
 			for (let i = 0; i < items.length; i++) {
 				if (activeShields[i] && hasShields[i]) indices.push(i)
 			}
-			shieldSnapshotRef.current = new Set(indices)
+		shieldSnapshotRef.current = new Set(indices)
 		} else {
 			shieldSnapshotRef.current = new Set()
 		}
@@ -132,6 +132,12 @@ export default function Wheel({
 		}
 		wheelRef.current?.addEventListener("transitionend", onEnd, { once: true })
 	}
+
+	function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const raw = e.target.value.replace(/,/g, "") // strip commas
+		const num = Number(raw)
+		setAmount(isNaN(num) ? 0 : num)
+	  }
 
 	return (
 		<div style={{ display: "grid", placeItems: "center", gap: 12 }}>
@@ -211,9 +217,9 @@ export default function Wheel({
 			</div>
 			<div style={{ display: "flex", gap: 8 }}>
 				<input
-					type="number"
-					value={formatYenNumber(amount) || ""}
-					onChange={(e) => setAmount(Number(e.target.value))}
+					type="text"
+					value={amount ? formatYenNumber(amount) : ""}
+					onChange={handleAmountChange}
 					placeholder="Amount"
 					style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", textAlign: "center" }}
 				/>
